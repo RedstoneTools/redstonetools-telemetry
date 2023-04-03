@@ -1,4 +1,7 @@
 import express from 'express';
+import postgres from 'postgres';
+
+const sql = postgres(); // Uses environment variables for database connection (https://www.postgresql.org/docs/current/libpq-envars.html)
 
 const app = express();
 
