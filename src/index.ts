@@ -47,11 +47,7 @@ v1.post('/session/create', async (req, res) => {
 	res.send(token);
 });
 
-v1.post('/crash', verifyToken, (req, res) => {
-	res.sendStatus(200);
-});
-
-v1.post('/error', verifyToken, (req, res) => {
+v1.post('/exception', verifyToken, (req, res) => {
 	res.sendStatus(200);
 });
 
