@@ -36,7 +36,7 @@ v1.post('/session/create', async (req, res) => {
 	});
 
 	if (authRes.status === 403)
-		return res.status(404).send('Invalid credentials');
+		return res.status(403).send('Invalid credentials');
 
 	const hashedServerId = await bcrypt.hash(serverId, 10);
 
