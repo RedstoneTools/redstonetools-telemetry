@@ -56,15 +56,11 @@ v1.post('/session/create', async (req, res) => {
 	session.start = new Date();
 	session.end = new Date(Date.now() + EXPIRE_TIME_SECS * 1000);
 
-	const newSession = await AppDataSource.manager.save(session);
+	await AppDataSource.manager.save(session);
 
-	const token = jwt.sign(
-		{ hashedServerId, sessionId: newSession.id },
-		JWT_SECRET,
-		{
-			expiresIn: EXPIRE_TIME_SECS,
-		},
-	);
+	const token = jwt.sign({ hashedServerId }, JWT_SECRET, {
+		expiresIn: EXPIRE_TIME_SECS,
+	});
 
 	res.send(token);
 });
@@ -86,7 +82,6 @@ function verifyTokenMiddleware(req, res, next: NextFunction) {
 	if (typeof decoded === 'string') return res.status(403).send(decoded);
 
 	req.body.hashedServerId = decoded.hashedServerId;
-	req.body.sessionId = decoded.sessionId;
 
 	next();
 }
