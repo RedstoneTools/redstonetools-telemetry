@@ -1,23 +1,14 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { Action } from './Action';
+import { Event } from './Event.js';
 
 @Entity()
-export class Exception {
+export class Exception extends Event {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ManyToOne(() => Action, action => action.exceptions)
-	action: Action;
-
 	@Column()
-	stacktrace: string;
+	stack_trace: string;
 
 	@Column()
 	is_fatal: boolean;
-
-	@Column()
-	created_at: Date;
-
-	@Column()
-	updated_at: Date;
 }

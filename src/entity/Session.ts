@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Action } from './Action';
+import { Event } from './Event.js';
 
 @Entity()
 export class Session {
@@ -10,8 +10,11 @@ export class Session {
 	hashed_uuid: string;
 
 	@Column()
-	ended_at: Date;
+	start: Date;
 
-	@OneToMany(() => Action, action => action.session)
-	actions: Action[];
+	@Column()
+	end: Date;
+
+	@OneToMany(() => Event, action => action.session)
+	actions: Event[];
 }

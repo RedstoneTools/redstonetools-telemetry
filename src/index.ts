@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 
-import { Action, Command, Session, Exception } from './entity';
+import { Event, Command, Session, Exception } from './entity/index.js';
 
 import config from './config.json' assert { type: 'json' };
 interface MojangAuth {
@@ -26,7 +26,7 @@ app.use('/api/v1', v1);
 
 const AppDataSource = new DataSource({
 	type: 'postgres',
-	entities: [Session, Action, Command, Exception],
+	entities: [Session, Event, Command, Exception],
 	synchronize: true,
 	...DB,
 });

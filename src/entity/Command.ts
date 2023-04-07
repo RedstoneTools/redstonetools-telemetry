@@ -1,20 +1,11 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { Action } from './Action';
+import { Event } from './Event.js';
 
 @Entity()
-export class Command {
+export class Command extends Event {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ManyToOne(() => Action, action => action.commands)
-	action: Action;
-
 	@Column()
 	command: string;
-
-	@Column()
-	created_at: Date;
-
-	@Column()
-	updated_at: Date;
 }
