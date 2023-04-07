@@ -1,5 +1,5 @@
 import express, { NextFunction } from 'express';
-import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import 'reflect-metadata';
@@ -44,11 +44,11 @@ v1.post('/session/create', async (req, res) => {
 	if (authRes.status === 403)
 		return res.status(403).send('Invalid credentials');
 
-	console.log(serverId);
-
-	const hashedServerId = await bcrypt.hash(serverId, 0);
-
-	console.log(hashedServerId);
+	const hashedServerId = crypto
+		.createHash('sha256')
+		.update(serverId)
+		.digest('hex')
+		.toString();
 
 	const session = new Session();
 
