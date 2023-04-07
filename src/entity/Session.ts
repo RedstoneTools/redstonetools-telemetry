@@ -15,6 +15,6 @@ export class Session {
 	@Column()
 	end: Date;
 
-	@OneToMany(() => Event, action => action.session)
-	actions: Event[];
+	@OneToMany(() => Event, event => event.session)
+	events: Event[];
 }

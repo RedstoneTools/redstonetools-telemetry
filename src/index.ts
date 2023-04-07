@@ -44,11 +44,17 @@ v1.post('/session/create', async (req, res) => {
 	if (authRes.status === 403)
 		return res.status(403).send('Invalid credentials');
 
-	const hashedServerId = await bcrypt.hash(serverId, 10);
+	console.log(serverId);
+
+	const hashedServerId = await bcrypt.hash(serverId, 0);
+
+	console.log(hashedServerId);
 
 	const session = new Session();
 
 	session.hashed_uuid = hashedServerId;
+	session.start = new Date();
+	session.end = new Date(Date.now() + EXPIRE_TIME_SECS * 1000);
 
 	const newSession = await AppDataSource.manager.save(session);
 
@@ -77,13 +83,7 @@ function verifyTokenMiddleware(req, res, next: NextFunction) {
 	const token = req.body.token;
 
 	const decoded = verifyToken(token);
-	if (decoded === 'NoToken')
-		return res.status(403).send('Could not find token in request body');
-	if (decoded === 'TokenExpired') return res.status(403).send('Token Expired');
-	if (decoded === 'InvalidToken')
-		return res.status(403).send('Invalid Credentials');
-
-	if (typeof decoded === 'string') return res.status(403).send('Unkown Error');
+	if (typeof decoded === 'string') return res.status(403).send(decoded);
 
 	req.body.hashedServerId = decoded.hashedServerId;
 	req.body.sessionId = decoded.sessionId;

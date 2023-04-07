@@ -15,7 +15,7 @@ export class Event {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ManyToOne(() => Session, session => session.actions)
+	@ManyToOne(() => Session, session => session.events)
 	session: Session;
 
 	@Column()
