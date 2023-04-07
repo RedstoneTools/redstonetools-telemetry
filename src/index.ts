@@ -65,24 +65,20 @@ v1.post('/command', verifyTokenMiddleware, (req, res) => {
 
 function verifyTokenMiddleware(req, res, next: NextFunction) {
 	const token = req.body.token;
-	// if (!token)
-	// 	return res.status(403).send('Could not find token in request body');
-
-	// jwt.verify(token, JWT_SECRET, (err, decoded) => {
-	// 	if (err) {
-	// 		if (err.name === 'TokenExpiredError')
-	// 			return res.status(403).send(`Token expired at ${err.expiredAt}`);
-
-	// 		return res.status(403).send('Invalid Credentials');
-	// 	}
-
-	// 	req.body.hashedServerId = decoded.hashedServerId;
-	// 	next();
-	// });
 
 	const decoded = verifyToken(token);
 	if (decoded === 'NoToken')
 		return res.status(403).send('Could not find token in request body');
+	if (decoded === 'TokenExpired') return res.status(403).send('Token Expired');
+	if (decoded === 'InvalidToken')
+		return res.status(403).send('Invalid Credentials');
+
+	if (typeof decoded === 'string') return res.status(403).send('Unkown Error');
+
+	req.body.hashedServerId = decoded.hashedServerId;
+	req.body.sessionId = decoded.sessionId;
+
+	next();
 }
 
 function verifyToken(token, allowExpired = false) {
