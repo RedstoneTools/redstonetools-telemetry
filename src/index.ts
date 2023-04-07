@@ -1,13 +1,10 @@
 import express, { NextFunction } from 'express';
-import { Pool } from 'pg';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import config from './config.json' assert { type: 'json' };
 
 const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB } = config;
-
-const pool = new Pool(DB);
 
 const app = express();
 
