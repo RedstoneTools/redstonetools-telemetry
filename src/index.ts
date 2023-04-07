@@ -46,9 +46,19 @@ v1.post('/session/create', async (req, res) => {
 
 	const hashedServerId = await bcrypt.hash(serverId, 10);
 
-	const token = jwt.sign({ hashedServerId }, JWT_SECRET, {
-		expiresIn: EXPIRE_TIME_SECS,
-	});
+	const session = new Session();
+
+	session.hashed_uuid = hashedServerId;
+
+	const newSession = await AppDataSource.manager.save(session);
+
+	const token = jwt.sign(
+		{ hashedServerId, sessionId: newSession.id },
+		JWT_SECRET,
+		{
+			expiresIn: EXPIRE_TIME_SECS,
+		},
+	);
 
 	res.send(token);
 });
