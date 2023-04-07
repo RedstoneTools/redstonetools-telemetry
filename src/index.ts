@@ -2,7 +2,17 @@ import express, { NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+
+import { Action, Command, Session, Exception } from './entity';
+
 import config from './config.json' assert { type: 'json' };
+interface MojangAuth {
+	serverId: string;
+	selectedProfile: string;
+	accessToken: string;
+}
 
 const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB } = config;
 
@@ -14,11 +24,14 @@ app.use(express.json());
 
 app.use('/api/v1', v1);
 
-interface MojangAuth {
-	serverId: string;
-	selectedProfile: string;
-	accessToken: string;
-}
+const AppDataSource = new DataSource({
+	type: 'postgres',
+	entities: [Session, Action, Command, Exception],
+	synchronize: true,
+	...DB,
+});
+
+await AppDataSource.initialize().catch(console.error);
 
 v1.post('/session/create', async (req, res) => {
 	const { serverId, selectedProfile, accessToken }: MojangAuth = req.body;

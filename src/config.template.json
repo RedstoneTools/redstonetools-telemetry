@@ -3,7 +3,7 @@
 	"EXPIRE_TIME_SECS": 300,
 	"JWT_SECRET": "",
 	"DB": {
-		"user": "",
+		"username": "",
 		"host": "",
 		"database": "",
 		"password": "",
