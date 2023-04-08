@@ -14,7 +14,7 @@ interface MojangAuth {
 	accessToken: string;
 }
 
-const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB } = config;
+const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB, PORT } = config;
 
 const app = express();
 
@@ -170,4 +170,4 @@ function verifyToken(token, allowExpired = false) {
 	return output;
 }
 
-app.listen(3000);
+app.listen(PORT);
