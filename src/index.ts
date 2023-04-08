@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { Event, Command, Session, Exception } from './entity/index.js';
 
@@ -65,7 +65,31 @@ v1.post('/session/create', async (req, res) => {
 	res.send(token);
 });
 
-v1.post('/session/refresh', async (req, res) => {});
+v1.post('/session/refresh', async (req, res) => {
+	const decoded = verifyToken(req.body.token, true);
+	if (typeof decoded === 'string') return res.status(403).send(decoded);
+
+	const sessionRepository = AppDataSource.getRepository(Session);
+
+	const session = await findLatestSessionByUUID(
+		decoded.hashedServerId,
+		sessionRepository,
+	);
+
+	session.end = new Date(session.end.getTime() + EXPIRE_TIME_SECS * 1000);
+
+	sessionRepository.save(session);
+
+	const token = jwt.sign(
+		{ hashedServerId: decoded.hashedServerId },
+		JWT_SECRET,
+		{
+			expiresIn: EXPIRE_TIME_SECS,
+		},
+	);
+
+	res.send(token);
+});
 
 v1.post('/exception', verifyTokenMiddleware, (req, res) => {
 	res.sendStatus(200);
@@ -75,7 +99,17 @@ v1.post('/command', verifyTokenMiddleware, (req, res) => {
 	res.sendStatus(200);
 });
 
-function verifyTokenMiddleware(req, res, next: NextFunction) {
+async function findLatestSessionByUUID(
+	uuid: string,
+	sessionRepository: Repository<Session>,
+) {
+	return await sessionRepository
+		.createQueryBuilder('session')
+		.where('session.hashed_uuid = :uuid', { uuid })
+		.orderBy('session.start', 'DESC')
+		.take(1)
+		.getOne();
+}
 	const token = req.body.token;
 
 	const decoded = verifyToken(token);
