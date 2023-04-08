@@ -69,6 +69,23 @@ v1.post('/session/refresh', async (req, res) => {
 	const decoded = verifyToken(req.body.token, true);
 	if (typeof decoded === 'string') return res.status(403).send(decoded);
 
+	const authRes = await fetch(AUTH_SERVER, {
+		method: 'POST',
+		body: JSON.stringify(req.body),
+	});
+
+	if (authRes.status === 403)
+		return res.status(403).send('Invalid credentials');
+
+	const hashedServerId = crypto
+		.createHash('sha256')
+		.update(req.body.serverId)
+		.digest('hex')
+		.toString();
+
+	if (hashedServerId !== req.body.hashedServerId)
+		return res.status(403).send('UUIDs do not match');
+
 	const sessionRepository = AppDataSource.getRepository(Session);
 
 	const session = await findLatestSessionByUUID(
