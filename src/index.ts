@@ -110,10 +110,25 @@ async function findLatestSessionByUUID(
 		.take(1)
 		.getOne();
 }
+
+async function authenticationMiddleware(req, res, next: NextFunction) {
 	const token = req.body.token;
 
 	const decoded = verifyToken(token);
 	if (typeof decoded === 'string') return res.status(403).send(decoded);
+
+	const sessionRepository = AppDataSource.getRepository(Session);
+
+	try {
+		const session = await findLatestSessionByUUID(
+			decoded.hashedServerId,
+			sessionRepository,
+		);
+
+		req.body.session = session;
+	} catch (err) {
+		return res.status(403).send('Failed to find latest session');
+	}
 
 	req.body.hashedServerId = decoded.hashedServerId;
 
