@@ -91,11 +91,28 @@ v1.post('/session/refresh', async (req, res) => {
 	res.send(token);
 });
 
-v1.post('/exception', verifyTokenMiddleware, (req, res) => {
+v1.post('/exception', authenticationMiddleware, async (req, res) => {
+	const exception = new Exception();
+
+	exception.reported_at = new Date();
+	exception.session = req.body.session;
+	exception.is_fatal = req.body.is_fatal;
+	exception.stack_trace = req.body.stack_trace;
+
+	await AppDataSource.manager.save(exception);
+
 	res.sendStatus(200);
 });
 
-v1.post('/command', verifyTokenMiddleware, (req, res) => {
+v1.post('/command', authenticationMiddleware, async (req, res) => {
+	const command = new Command();
+
+	command.reported_at = new Date();
+	command.session = req.body.session;
+	command.command = req.body.command;
+
+	await AppDataSource.manager.save(command);
+
 	res.sendStatus(200);
 });
 
