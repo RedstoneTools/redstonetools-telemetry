@@ -93,7 +93,7 @@ v1.post('/session/refresh', async (req, res) => {
 		sessionRepository,
 	);
 
-	session.end = new Date(session.end.getTime() + EXPIRE_TIME_SECS * 1000);
+	session.end = new Date(Date.now() + EXPIRE_TIME_SECS * 1000);
 
 	sessionRepository.save(session);
 
