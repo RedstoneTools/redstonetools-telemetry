@@ -1,0 +1,13 @@
+{
+	"AUTH_SERVER": "https://sessionserver.mojang.com/session/minecraft/join",
+	"EXPIRE_TIME_SECS": 300,
+	"JWT_SECRET": "",
+	"port": 3000,
+	"DB": {
+		"username": "",
+		"host": "",
+		"database": "",
+		"password": "",
+		"port": 5432
+	}
+}
