@@ -1,6 +1,9 @@
 import express, { NextFunction } from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import fetch from 'node-fetch';
+import morganBody from 'morgan-body';
+import bodyParser from 'body-parser';
 
 import 'reflect-metadata';
 import { DataSource, Repository } from 'typeorm';
@@ -18,6 +21,13 @@ const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB, PORT } = config;
 
 const app = express();
 
+app.use(bodyParser.json());
+
+morganBody(app, {
+	logAllReqHeader: true,
+	maxBodyLength: 5000,
+});
+
 const v1 = express.Router();
 
 app.use(express.json());
@@ -33,15 +43,19 @@ const AppDataSource = new DataSource({
 
 await AppDataSource.initialize().catch(console.error);
 
+async function verifyMojangAuth(auth: MojangAuth) {
+	const authRes = await fetch(AUTH_SERVER, {
+		method: 'POST',
+		body: JSON.stringify(auth),
+	});
+
+	return authRes.ok;
+}
+
 v1.post('/session/create', async (req, res) => {
 	const { serverId, selectedProfile, accessToken }: MojangAuth = req.body;
 
-	const authRes = await fetch(AUTH_SERVER, {
-		method: 'POST',
-		body: JSON.stringify(req.body),
-	});
-
-	if (authRes.status === 403)
+	if (!await verifyMojangAuth(req.body))
 		return res.status(403).send('Invalid credentials');
 
 	const hashedServerId = crypto
@@ -66,15 +80,10 @@ v1.post('/session/create', async (req, res) => {
 });
 
 v1.post('/session/refresh', async (req, res) => {
-	const decoded = verifyToken(req.body.token, true);
+	const decoded = verifyToken(req.headers['authorization'], true);
 	if (typeof decoded === 'string') return res.status(403).send(decoded);
 
-	const authRes = await fetch(AUTH_SERVER, {
-		method: 'POST',
-		body: JSON.stringify(req.body),
-	});
-
-	if (authRes.status === 403)
+	if (!await verifyMojangAuth(req.body))
 		return res.status(403).send('Invalid credentials');
 
 	const hashedServerId = crypto
@@ -146,7 +155,7 @@ async function findLatestSessionByUUID(
 }
 
 async function authenticationMiddleware(req, res, next: NextFunction) {
-	const token = req.body.token;
+	const token = req.headers['authorization'];
 
 	const decoded = verifyToken(token);
 	if (typeof decoded === 'string') return res.status(403).send(decoded);
@@ -187,4 +196,6 @@ function verifyToken(token, allowExpired = false) {
 	return output;
 }
 
-app.listen(PORT);
+app.listen(PORT, () => {
+	console.log(`Listening on port ${PORT}`);
+});
