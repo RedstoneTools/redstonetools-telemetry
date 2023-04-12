@@ -148,12 +148,10 @@ async function findLatestSessionByUUID(
 	uuid: string,
 	sessionRepository: Repository<Session>,
 ) {
-	return await sessionRepository
-		.createQueryBuilder('session')
-		.where('session.hashed_uuid = :uuid', { uuid })
-		.orderBy('session.start', 'DESC')
-		.take(1)
-		.getOne();
+	return await sessionRepository.findOne({
+		where: { hashed_uuid: uuid },
+		order: { start: 'DESC' },
+	});
 }
 
 async function authenticationMiddleware(req, res, next: NextFunction) {
