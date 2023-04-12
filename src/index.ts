@@ -19,7 +19,7 @@ interface MojangAuth {
 	accessToken: string;
 }
 
-const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB, PORT } = config;
+const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB, PORT, HTTPS } = config;
 
 const app = express();
 
@@ -200,8 +200,8 @@ function verifyToken(token, allowExpired = false) {
 
 const server = https.createServer(
 	{
-		key: fs.readFileSync('key.pem'),
-		cert: fs.readFileSync('cert.pem'),
+		key: fs.readFileSync(config.HTTPS.keyPath),
+		cert: fs.readFileSync(config.HTTPS.certPath),
 	},
 	app,
 );
