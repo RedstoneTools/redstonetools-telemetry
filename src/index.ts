@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import morganBody from 'morgan-body';
 import bodyParser from 'body-parser';
+import https from 'https';
+import fs from 'fs';
 
 import 'reflect-metadata';
 import { DataSource, Repository } from 'typeorm';
@@ -196,6 +198,14 @@ function verifyToken(token, allowExpired = false) {
 	return output;
 }
 
-app.listen(PORT, () => {
+const server = https.createServer(
+	{
+		key: fs.readFileSync('key.pem'),
+		cert: fs.readFileSync('cert.pem'),
+	},
+	app,
+);
+
+server.listen(PORT, () => {
 	console.log(`Listening on port ${PORT}`);
 });

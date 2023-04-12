@@ -9,5 +9,9 @@
 		"database": "",
 		"password": "",
 		"port": 5432
+	},
+	"HTTPS": {
+		"keyPath": "",
+		"certPath": ""
 	}
 }
