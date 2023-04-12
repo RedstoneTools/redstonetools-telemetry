@@ -14,7 +14,7 @@ export abstract class Event {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ManyToOne(() => Session, session => session.events)
+	@ManyToOne(() => Session, session => session.events, { onDelete: 'CASCADE' })
 	session: Session;
 
 	@Column()
