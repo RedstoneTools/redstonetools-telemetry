@@ -49,6 +49,7 @@ async function verifyMojangAuth(auth: MojangAuth) {
 	const authRes = await fetch(AUTH_SERVER, {
 		method: 'POST',
 		body: JSON.stringify(auth),
+		headers: {"Content-Type": "application/json"}
 	});
 
 	return authRes.ok;
