@@ -15,6 +15,6 @@ export class Session {
 	@Column()
 	end: Date;
 
-	@OneToMany(() => Event, event => event.session)
+	@OneToMany(() => Event, event => event.session, { cascade: true })
 	events: Event[];
 }

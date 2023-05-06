@@ -2,17 +2,19 @@ import { Session } from './Session.js';
 
 import {
 	Column,
-	Entity,
 	ManyToOne,
 	PrimaryGeneratedColumn,
+	Entity,
+	TableInheritance,
 } from 'typeorm';
 
 @Entity()
+@TableInheritance({ column: { type: "varchar", name: "type" } })
 export abstract class Event {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ManyToOne(() => Session, session => session.events, { cascade: true })
+	@ManyToOne(() => Session, session => session.events, { onDelete: 'CASCADE' })
 	session: Session;
 
 	@Column()

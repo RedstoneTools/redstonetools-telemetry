@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { ChildEntity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { Event } from './Event.js';
 
-@Entity()
+@ChildEntity()
 export class Exception extends Event {
 	@PrimaryGeneratedColumn()
 	id: number;

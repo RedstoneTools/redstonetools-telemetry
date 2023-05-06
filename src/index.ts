@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
 import morganBody from 'morgan-body';
 import bodyParser from 'body-parser';
+import https from 'https';
+import fs from 'fs';
 
 import 'reflect-metadata';
 import { DataSource, Repository } from 'typeorm';
@@ -17,7 +19,7 @@ interface MojangAuth {
 	accessToken: string;
 }
 
-const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB, PORT } = config;
+const { AUTH_SERVER, JWT_SECRET, EXPIRE_TIME_SECS, DB, PORT, HTTPS } = config;
 
 const app = express();
 
@@ -47,6 +49,7 @@ async function verifyMojangAuth(auth: MojangAuth) {
 	const authRes = await fetch(AUTH_SERVER, {
 		method: 'POST',
 		body: JSON.stringify(auth),
+		headers: {"Content-Type": "application/json"}
 	});
 
 	return authRes.ok;
@@ -146,12 +149,10 @@ async function findLatestSessionByUUID(
 	uuid: string,
 	sessionRepository: Repository<Session>,
 ) {
-	return await sessionRepository
-		.createQueryBuilder('session')
-		.where('session.hashed_uuid = :uuid', { uuid })
-		.orderBy('session.start', 'DESC')
-		.take(1)
-		.getOne();
+	return await sessionRepository.findOne({
+		where: { hashed_uuid: uuid },
+		order: { start: 'DESC' },
+	});
 }
 
 async function authenticationMiddleware(req, res, next: NextFunction) {
@@ -196,6 +197,14 @@ function verifyToken(token, allowExpired = false) {
 	return output;
 }
 
-app.listen(PORT, () => {
+const server = https.createServer(
+	{
+		key: fs.readFileSync(config.HTTPS.keyPath),
+		cert: fs.readFileSync(config.HTTPS.certPath),
+	},
+	app,
+);
+
+server.listen(PORT, () => {
 	console.log(`Listening on port ${PORT}`);
 });
