@@ -1,3 +1,7 @@
+# Archived
+
+This repository has been archived as the newer versions of the Redstone Tools mod no longer send telemetry data.
+
 # Telemetry Server
 
 This is a telemetry server written in Node.js that collects data from the redstone tools mod so we can better understand how the mod is being used
